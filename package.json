@@ -1,0 +1,34 @@
+{
+  "name": "skillsync_ai",
+  "version": "1.0.0",
+  "description": "SkillSync uses NLP-based skill extraction and cosine similarity matching to evaluate resume-job compatibility.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon backend/server.js",
+    "start": "node backend/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sagarchhikara/SkillSync_Ai.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sagarchhikara/SkillSync_Ai/issues"
+  },
+  "homepage": "https://github.com/Sagarchhikara/SkillSync_Ai#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mammoth": "^1.11.0",
+    "mongoose": "^9.2.3",
+    "multer": "^2.1.0",
+    "pdf-parse": "^2.4.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
