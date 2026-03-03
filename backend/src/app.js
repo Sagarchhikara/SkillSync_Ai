@@ -11,7 +11,10 @@ app.use(cors({
     credentials: true
 }));
 
-// Setup Routes (Placeholder - routes will be registered here)
+// Setup Routes
+const matchRoutes = require('./routes/matchRoutes');
+app.use('/api/match', matchRoutes);
+
 app.get('/api/health', (req, res) => {
     res.json({ status: "SkillSync API running" });
 });

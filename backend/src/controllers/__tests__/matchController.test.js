@@ -1,0 +1,103 @@
+const request = require('supertest');
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const app = require('../../app');
+const Resume = require('../../models/Resume');
+const Job = require('../../models/job');
+
+let mongoServer;
+
+describe('Match API (matchController integration)', () => {
+
+    beforeAll(async () => {
+        // Spin up the in-memory MongoDB instance
+        mongoServer = await MongoMemoryServer.create();
+        const mongoUri = mongoServer.getUri();
+        await mongoose.connect(mongoUri);
+    });
+
+    afterAll(async () => {
+        // Clean up
+        await mongoose.disconnect();
+        await mongoServer.stop();
+    });
+
+    afterEach(async () => {
+        // Clear collections after each test to ensure isolation
+        await Resume.deleteMany({});
+        await Job.deleteMany({});
+    });
+
+    it('should return 200 and correct match analysis for valid ObjectIDs', async () => {
+        // 1. Seed the temporary database
+        const resume = await Resume.create({
+            userId: "user_test",
+            skills: ["node.js", " Express", " MongoDB", "react"],
+            rawText: "I am a full stack dev"
+        });
+
+        const job = await Job.create({
+            title: "Backend Dev",
+            company: "Tech Inc",
+            description: "Looking for node devs",
+            requiredSkills: ["Node.js", "MongoDB", "AWS", "Docker"]
+        });
+
+        // 2. Make the API request
+        const res = await request(app).get(`/api/match/${resume._id}/${job._id}`);
+
+        // 3. Assertions
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.data).toBeDefined();
+
+        // node.js and mongodb matched, 2 out of 4 = 50%
+        expect(res.body.data.matchPercentage).toBe(50);
+        expect(res.body.data.matchedSkills).toEqual(['node.js', 'mongodb']);
+        expect(res.body.data.missingSkills).toEqual(['aws', 'docker']);
+    });
+
+    it('should return 404 if Resume does not exist', async () => {
+        const fakeResumeId = new mongoose.Types.ObjectId();
+
+        const job = await Job.create({
+            title: "Tester",
+            company: "QA Org",
+            description: "testing",
+            requiredSkills: ["jest", "mocha"]
+        });
+
+        const res = await request(app).get(`/api/match/${fakeResumeId}/${job._id}`);
+
+        expect(res.statusCode).toBe(404);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toMatch(/resume not found/i);
+    });
+
+    it('should return 404 if Job does not exist', async () => {
+        const resume = await Resume.create({
+            userId: "user_test",
+            skills: ["react"],
+            rawText: "test"
+        });
+        const fakeJobId = new mongoose.Types.ObjectId();
+
+        const res = await request(app).get(`/api/match/${resume._id}/${fakeJobId}`);
+
+        expect(res.statusCode).toBe(404);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toMatch(/job not found/i);
+    });
+
+    it('should return 400 for malformed ObjectID string formats', async () => {
+        const malformedId = "invalid_id_format_123";
+        const validId = new mongoose.Types.ObjectId();
+
+        const res = await request(app).get(`/api/match/${malformedId}/${validId}`);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toMatch(/invalid id format/i);
+    });
+
+});
