@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const app = require('../../app');
 const Resume = require('../../models/Resume');
-const Job = require('../../models/job');
+const Job = require('../../models/Job');
 
 let mongoServer;
 

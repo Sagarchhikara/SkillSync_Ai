@@ -1,5 +1,5 @@
 const Resume = require('../models/Resume');
-const Job = require('../models/job');
+const Job = require('../models/Job');
 const { calculateMatch } = require('../services/matchService');
 
 /**
