@@ -32,6 +32,8 @@ describe('Match API (matchController integration)', () => {
         // 1. Seed the temporary database
         const resume = await Resume.create({
             userId: "user_test",
+            filename: "test.pdf",
+            filepath: "uploads/test.pdf",
             skills: ["node.js", " Express", " MongoDB", "react"],
             rawText: "I am a full stack dev"
         });
@@ -77,6 +79,8 @@ describe('Match API (matchController integration)', () => {
     it('should return 404 if Job does not exist', async () => {
         const resume = await Resume.create({
             userId: "user_test",
+            filename: "test.pdf",
+            filepath: "uploads/test.pdf",
             skills: ["react"],
             rawText: "test"
         });
