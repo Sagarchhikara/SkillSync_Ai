@@ -16,24 +16,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// POST /api/resume/upload
-router.post('/upload', upload.single('resume'), (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: 'No file uploaded' });
-        }
+const resumeController = require('../controllers/resumeController');
 
-        // Return a mock parsed resume or ID
-        return res.status(200).json({
-            success: true,
-            message: 'Resume uploaded successfully',
-            resumeId: 'mock-resume-id-' + Date.now(),
-            fileName: req.file.filename
-        });
-    } catch (error) {
-        console.error('Upload Error:', error);
-        return res.status(500).json({ success: false, message: 'Server error during upload' });
-    }
-});
+// POST /api/resume/upload
+router.post('/upload', upload.single('resume'), resumeController.uploadResume);
 
 module.exports = router;

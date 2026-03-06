@@ -2,9 +2,18 @@ const mongoose = require('mongoose');
 
 const resumeSchema = new mongoose.Schema(
     {
-        userId: {
-            type: String, // String for flexibility (could be ObjectId ref later)
-            required: [true, 'User ID is required to link resume']
+        filename: {
+            type: String,
+            required: [true, 'Original filename is required']
+        },
+        filepath: {
+            type: String,
+            required: [true, 'Filepath is required']
+        },
+        rawText: {
+            type: String,
+            required: [true, 'Raw resume text is required for future NLP processing'],
+            trim: true
         },
         skills: {
             type: [String],
@@ -21,23 +30,22 @@ const resumeSchema = new mongoose.Schema(
                 return [...new Set(skillsArr.map(s => s.toLowerCase().trim()))];
             }
         },
-        rawText: {
-            type: String,
-            required: [true, 'Raw resume text is required for future NLP processing'],
-            trim: true
+        uploadedAt: {
+            type: Date,
+            default: Date.now
         },
-        experienceYears: {
-            type: Number,
-            required: false,
-            min: 0
+        // Optional future fields
+        userId: {
+            type: String, // String for flexibility (could be ObjectId ref later)
+            required: false
         },
-        education: {
-            type: [String],
-            required: false,
-            set: function (eduArr) {
-                if (!Array.isArray(eduArr)) return eduArr;
-                return eduArr.map(e => e.trim());
-            }
+        MatchScores: {
+            type: [Number],
+            required: false
+        },
+        analysisResults: {
+            type: mongoose.Schema.Types.Mixed,
+            required: false
         }
     },
     {

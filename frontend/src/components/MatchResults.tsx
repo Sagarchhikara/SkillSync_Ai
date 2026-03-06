@@ -1,11 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import ScoreCard from "@/components/ScoreCard";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { Search, CheckCircle2, XCircle } from "lucide-react";
+import { Search, CheckCircle2, XCircle, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/services/api";
 
@@ -19,132 +17,157 @@ interface MatchData {
   skillMatch: number;
   experienceMatch: number;
   finalScore: number;
+  matchPercentage?: number; // Added from new logic
   matchedSkills: string[];
   missingSkills: string[];
-  weightsSummary: {
+  weightsSummary?: {
     totalWeight: number;
     matchedWeight: number;
     skillBreakdown: SkillBreakdown[];
   };
 }
 
-const MatchResults = () => {
-  const [resumeId, setResumeId] = useState("");
-  const [jobId, setJobId] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<MatchData | null>(null);
+interface RankedJob {
+  job: {
+    _id: string;
+    title: string;
+    company: string;
+    minExperience: number;
+  };
+  matchDetails: MatchData;
+}
 
-  const handleMatch = async () => {
-    if (!resumeId || !jobId) {
-      toast.error("Please enter both Resume ID and Job ID");
-      return;
-    }
+const MatchResults = () => {
+  const [loading, setLoading] = useState(false);
+  const [jobs, setJobs] = useState<RankedJob[]>([]);
+  const [hasScanned, setHasScanned] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleAutoMatch = async () => {
     setLoading(true);
+    setHasScanned(false);
+    setErrorMsg("");
     try {
-      const res = await api.get(`/match/${resumeId}/${jobId}`);
-      setData(res.data.data);
+      // Hardcoded userId according to backend default for now
+      const res = await api.get(`/match/auto/testuser123`);
+      setJobs(res.data.data || []);
+      setHasScanned(true);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Match failed");
+      const msg = err.response?.data?.message || "Match scan failed";
+      setErrorMsg(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch immediately on mount
+  useEffect(() => {
+    handleAutoMatch();
+  }, []);
+
   return (
     <div className="space-y-8">
-      <div className="glass rounded-2xl p-6 space-y-4">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Resume ID</Label>
-            <Input placeholder="e.g. 69a7b2ee4f66914d06b847bb" value={resumeId} onChange={(e) => setResumeId(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label>Job ID</Label>
-            <Input placeholder="e.g. 7849c9f2aa123456" value={jobId} onChange={(e) => setJobId(e.target.value)} />
-          </div>
+      <div className="glass rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">Auto-Match Analysis</h3>
+          <p className="text-sm text-muted-foreground">Finding the best roles based on your latest resume skills.</p>
         </div>
-        <Button variant="gradient" onClick={handleMatch} disabled={loading}>
-          {loading ? <LoadingSpinner size={16} /> : <><Search className="mr-2 h-4 w-4" /> Analyze Match</>}
+        <Button variant="gradient" onClick={handleAutoMatch} disabled={loading}>
+          {loading ? <LoadingSpinner size={16} /> : <><Search className="mr-2 h-4 w-4" /> Rescan</>}
         </Button>
       </div>
 
-      <AnimatePresence>
-        {data && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {/* Score Cards */}
-            <div className="grid gap-6 md:grid-cols-3">
-              <div className="glass rounded-2xl p-6 flex justify-center">
-                <ScoreCard score={data.finalScore} label="Final Score" size={140} />
-              </div>
-              <div className="glass rounded-2xl p-6 flex justify-center">
-                <ScoreCard score={data.skillMatch} label="Skill Match" size={120} />
-              </div>
-              <div className="glass rounded-2xl p-6 flex justify-center">
-                <ScoreCard score={data.experienceMatch} label="Experience" size={120} />
-              </div>
+      {errorMsg ? (
+        <div className="glass rounded-2xl p-8 text-center border-destructive/30">
+          <XCircle className="mx-auto h-8 w-8 text-destructive mb-3" />
+          <p className="text-destructive font-medium">{errorMsg}</p>
+          <p className="text-sm text-muted-foreground mt-2">Go to the "Upload Resume" tab to add your skills profile.</p>
+        </div>
+      ) : (
+        <AnimatePresence>
+          {hasScanned && jobs.length === 0 && (
+             <div className="glass rounded-2xl p-8 text-center border-accent/30">
+              <Briefcase className="mx-auto h-8 w-8 text-muted-foreground mb-3 opacity-50" />
+              <p className="text-muted-foreground">No jobs available to match right now.</p>
+              <p className="text-sm text-muted-foreground mt-1">Check back later or add dummy jobs in the Jobs tab.</p>
             </div>
+          )}
 
-            {/* Skills */}
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="glass rounded-2xl p-6">
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Matched Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {data.matchedSkills.map((s) => (
-                    <span key={s} className="inline-flex items-center gap-1 rounded-full bg-success/15 px-3 py-1 text-xs font-medium text-success">
-                      <CheckCircle2 className="h-3 w-3" /> {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="glass rounded-2xl p-6">
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Missing Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {data.missingSkills.map((s) => (
-                    <span key={s} className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-3 py-1 text-xs font-medium text-destructive">
-                      <XCircle className="h-3 w-3" /> {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+          {hasScanned && jobs.length > 0 && (
+            <div className="space-y-6">
+              <h3 className="text-xl font-bold text-foreground">Top Recommendations</h3>
+              {jobs.map((rankedJob, index) => (
+                <motion.div
+                  key={rankedJob.job._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="glass rounded-2xl p-6 relative overflow-hidden"
+                >
+                  {/* Rank Badge */}
+                  <div className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary font-bold">
+                    #{index + 1}
+                  </div>
 
-            {/* Weight Breakdown Table */}
-            <div className="glass rounded-2xl p-6">
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Weight Breakdown</h3>
-              <div className="overflow-hidden rounded-xl border border-border">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/30">
-                      <th className="px-4 py-3 text-left font-medium text-muted-foreground">Skill</th>
-                      <th className="px-4 py-3 text-left font-medium text-muted-foreground">Weight</th>
-                      <th className="px-4 py-3 text-left font-medium text-muted-foreground">Matched</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.weightsSummary.skillBreakdown.map((s) => (
-                      <tr key={s.name} className="border-b border-border/50 last:border-0">
-                        <td className="px-4 py-3 font-medium text-foreground">{s.name}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{s.weight}</td>
-                        <td className="px-4 py-3">
-                          {s.matched ? (
-                            <span className="inline-flex items-center gap-1 text-success"><CheckCircle2 className="h-4 w-4" /> Yes</span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-destructive"><XCircle className="h-4 w-4" /> No</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  <div className="grid gap-6 md:grid-cols-12">
+                     {/* Job Info & Score */}
+                     <div className="md:col-span-4 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-border pb-6 md:pb-0 md:pr-6">
+                        <ScoreCard score={rankedJob.matchDetails.matchPercentage || rankedJob.matchDetails.finalScore || 0} label="Match Score" size={100} />
+                        <div className="text-center mt-4 space-y-1">
+                           <h4 className="font-bold text-lg text-foreground leading-tight">{rankedJob.job.title}</h4>
+                           <p className="text-sm text-muted-foreground">{rankedJob.job.company}</p>
+                           {rankedJob.job.minExperience > 0 && (
+                              <span className="inline-block mt-2 text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded">
+                                {rankedJob.job.minExperience}+ yrs exp required
+                              </span>
+                           )}
+                        </div>
+                     </div>
+
+                     {/* Skills Breakdown */}
+                     <div className="md:col-span-8 space-y-4 flex flex-col justify-center">
+                        <div>
+                          <h5 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3 text-success" /> You Have
+                          </h5>
+                          <div className="flex flex-wrap gap-2">
+                            {rankedJob.matchDetails.matchedSkills.length > 0 ? (
+                               rankedJob.matchDetails.matchedSkills.map((s) => (
+                                <span key={s} className="inline-flex items-center rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-medium text-success">
+                                  {s}
+                                </span>
+                              ))
+                            ) : (
+                               <span className="text-xs text-muted-foreground italic">No matching skills</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <h5 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                             <XCircle className="h-3 w-3 text-destructive" /> Missing
+                          </h5>
+                          <div className="flex flex-wrap gap-2">
+                            {rankedJob.matchDetails.missingSkills.length > 0 ? (
+                               rankedJob.matchDetails.missingSkills.map((s) => (
+                                <span key={s} className="inline-flex items-center rounded-full bg-destructive/15 px-2.5 py-0.5 text-xs font-medium text-destructive">
+                                  {s}
+                                </span>
+                              ))
+                            ) : (
+                               <span className="text-xs text-success italic mt-1 inline-flex items-center gap-1"><CheckCircle2 className="h-3 w-3"/> Perfect match!</span>
+                            )}
+                          </div>
+                        </div>
+                     </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      )}
     </div>
   );
 };

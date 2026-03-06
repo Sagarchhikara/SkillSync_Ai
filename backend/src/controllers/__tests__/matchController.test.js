@@ -32,6 +32,8 @@ describe('Match API (matchController integration)', () => {
         // 1. Seed the temporary database
         const resume = await Resume.create({
             userId: "user_test",
+            filename: "test.pdf",
+            filepath: "uploads/test.pdf",
             skills: ["node.js", " Express", " MongoDB", "react"],
             rawText: "I am a full stack dev"
         });
@@ -77,6 +79,8 @@ describe('Match API (matchController integration)', () => {
     it('should return 404 if Job does not exist', async () => {
         const resume = await Resume.create({
             userId: "user_test",
+            filename: "test.pdf",
+            filepath: "uploads/test.pdf",
             skills: ["react"],
             rawText: "test"
         });
@@ -98,6 +102,52 @@ describe('Match API (matchController integration)', () => {
         expect(res.statusCode).toBe(400);
         expect(res.body.success).toBe(false);
         expect(res.body.message).toMatch(/invalid id format/i);
+    });
+
+    describe('GET /api/match/auto/:userId', () => {
+        it('should return ranked jobs based on user latest resume', async () => {
+            const resume = await Resume.create({
+                userId: "testuser123",
+                filename: "test.pdf",
+                filepath: "uploads/test.pdf",
+                skills: ["react", "node.js"],
+                rawText: "Dev"
+            });
+
+            await Job.create({
+                title: "Frontend",
+                company: "UI Corp",
+                requiredSkills: ["react", "css"]
+            });
+
+            await Job.create({
+                title: "Backend",
+                company: "Server Inc",
+                requiredSkills: ["node.js", "mongodb", "aws"]
+            });
+
+            await Job.create({
+                title: "Fullstack",
+                company: "All Round",
+                requiredSkills: ["react", "node.js", "docker"]
+            });
+
+            const res = await request(app).get(`/api/match/auto/testuser123`);
+
+            expect(res.statusCode).toBe(200);
+            expect(res.body.success).toBe(true);
+            expect(res.body.data.length).toBe(3);
+            
+            // Fullstack should be first since it matches 2 skills
+            expect(res.body.data[0].job.title).toBe("Fullstack");
+            expect(res.body.data[1].job.title).toBe("Frontend"); // 1 match out of 2 = 50%
+        });
+
+        it('should return 404 if no resume found for user', async () => {
+            const res = await request(app).get(`/api/match/auto/nonexistentuser`);
+            expect(res.statusCode).toBe(404);
+            expect(res.body.success).toBe(false);
+        });
     });
 
 });
