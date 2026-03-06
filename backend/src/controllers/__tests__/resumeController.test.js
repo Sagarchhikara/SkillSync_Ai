@@ -58,8 +58,7 @@ describe('resumeController - Unit Tests', () => {
         expect(mockRes.status).toHaveBeenCalledWith(200);
         expect(mockRes.json).toHaveBeenCalledWith({
             success: true,
-            resumeId: 'mock-id-123',
-            skills
+            data: mockResume
         });
     });
 

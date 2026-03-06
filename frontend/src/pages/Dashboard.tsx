@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import ResumeUploader from "@/components/ResumeUploader";
 import MatchResults from "@/components/MatchResults";
+import JobUploader from "@/components/JobUploader";
 import { motion } from "framer-motion";
 import { Bell, User, FileText, Target, TrendingUp } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -67,6 +68,16 @@ const MatchPage = () => (
   </motion.div>
 );
 
+const JobsPage = () => (
+  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+    <div>
+      <h2 className="text-2xl font-bold text-foreground">Jobs Management</h2>
+      <p className="text-sm text-muted-foreground">Create new jobs or browse available positions.</p>
+    </div>
+    <JobUploader />
+  </motion.div>
+);
+
 const Dashboard = () => {
   const { user } = useAuth();
 
@@ -88,6 +99,7 @@ const Dashboard = () => {
           <Routes>
             <Route index element={<DashboardHome />} />
             <Route path="upload" element={<UploadPage />} />
+            <Route path="jobs" element={<JobsPage />} />
             <Route path="match" element={<MatchPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>

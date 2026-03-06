@@ -48,8 +48,7 @@ const uploadResume = async (req, res) => {
         // 4. Return response to frontend
         return res.status(200).json({
             success: true,
-            resumeId: resume._id,
-            skills: skills
+            data: resume
         });
     } catch (error) {
         console.error('Resume upload/process error:', error);

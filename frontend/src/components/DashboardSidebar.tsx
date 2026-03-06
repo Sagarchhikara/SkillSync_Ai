@@ -3,10 +3,13 @@ import { LayoutDashboard, Upload, Briefcase, LogOut, Sparkles } from "lucide-rea
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
+import { Target } from "lucide-react"; // I will also need to add Target imports later but let's just do it directly.
+
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
   { label: "Upload Resume", icon: Upload, path: "/dashboard/upload" },
-  { label: "Job Matching", icon: Briefcase, path: "/dashboard/match" },
+  { label: "Jobs", icon: Briefcase, path: "/dashboard/jobs" },
+  { label: "Job Matching", icon: Target, path: "/dashboard/match" },
 ];
 
 const DashboardSidebar = () => {

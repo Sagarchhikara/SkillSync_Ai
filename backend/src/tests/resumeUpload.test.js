@@ -64,11 +64,12 @@ describe('Resume Upload Integration Tests', () => {
 
             expect(res.status).toBe(200);
             expect(res.body.success).toBe(true);
-            expect(res.body.resumeId).toBeDefined();
-            expect(res.body.skills).toEqual(['node.js', 'react']);
+            expect(res.body.data).toBeDefined();
+            expect(res.body.data._id).toBeDefined();
+            expect(res.body.data.skills).toEqual(['node.js', 'react']);
 
             // Verify it was saved in DB
-            const savedResume = await Resume.findById(res.body.resumeId);
+            const savedResume = await Resume.findById(res.body.data._id);
             expect(savedResume).toBeDefined();
             expect(savedResume.skills).toContain('node.js');
             expect(savedResume.rawText).toBe('I am a developer with Node.js and React experience.');
