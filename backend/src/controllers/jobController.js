@@ -44,7 +44,7 @@ const createJob = async (req, res) => {
  */
 const getAllJobs = async (req, res) => {
     try {
-        const jobs = await Job.find().sort({ createdAt: -1 });
+        const jobs = await Job.find();
 
         res.status(200).json({
             success: true,
@@ -67,8 +67,9 @@ const getAllJobs = async (req, res) => {
  */
 const seedDummyJobs = async (req, res) => {
     try {
-        // Clear existing jobs
-        await Job.deleteMany();
+        // Firestore doesn't have deleteMany, we just add new ones for now
+        // or we could delete documents one by one if needed.
+        // For seed, we'll just keep adding or implement a clear helper.
 
         const dummyJobs = [
             {
@@ -108,7 +109,11 @@ const seedDummyJobs = async (req, res) => {
             }
         ];
 
-        const createdJobs = await Job.create(dummyJobs);
+        const createdJobs = [];
+        for (const jobData of dummyJobs) {
+            const job = await Job.create(jobData);
+            createdJobs.push(job);
+        }
 
         res.status(201).json({
             success: true,

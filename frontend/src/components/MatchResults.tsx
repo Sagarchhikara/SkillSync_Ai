@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import ScoreCard from "@/components/ScoreCard";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { Search, CheckCircle2, XCircle, Briefcase } from "lucide-react";
+import { Search, CheckCircle2, XCircle, Briefcase, Bookmark, BookmarkCheck } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
 
 interface SkillBreakdown {
   name: string;
@@ -43,13 +44,20 @@ const MatchResults = () => {
   const [hasScanned, setHasScanned] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const { user } = useAuth();
+  const [savingJobs, setSavingJobs] = useState<Record<string, boolean>>({});
+
   const handleAutoMatch = async () => {
+    if (!user) {
+      setErrorMsg("Please log in to see job matches.");
+      return;
+    }
+    
     setLoading(true);
     setHasScanned(false);
     setErrorMsg("");
     try {
-      // Hardcoded userId according to backend default for now
-      const res = await api.get(`/match/auto/testuser123`);
+      const res = await api.get(`/match/auto/${user._id}`);
       setJobs(res.data.data || []);
       setHasScanned(true);
     } catch (err: any) {
@@ -58,6 +66,20 @@ const MatchResults = () => {
       toast.error(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveJob = async (jobId: string) => {
+    if (!user) return;
+    setSavingJobs(prev => ({ ...prev, [jobId]: true }));
+    try {
+      await api.post(`/users/${user._id}/jobs/${jobId}`);
+      toast.success("Job saved successfully!");
+      // We could update local state if we want to show a saved indicator, but standard success toast is fine for now
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to save job");
+    } finally {
+      setSavingJobs(prev => ({ ...prev, [jobId]: false }));
     }
   };
 
@@ -106,8 +128,20 @@ const MatchResults = () => {
                   className="glass rounded-2xl p-6 relative overflow-hidden"
                 >
                   {/* Rank Badge */}
-                  <div className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary font-bold">
-                    #{index + 1}
+                  <div className="absolute top-4 right-4 flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleSaveJob(rankedJob.job._id)}
+                      disabled={savingJobs[rankedJob.job._id]}
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                      title="Save Job"
+                    >
+                       {savingJobs[rankedJob.job._id] ? <LoadingSpinner size={14} /> : <Bookmark className="h-4 w-4" />}
+                    </Button>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary font-bold">
+                      #{index + 1}
+                    </div>
                   </div>
 
                   <div className="grid gap-6 md:grid-cols-12">

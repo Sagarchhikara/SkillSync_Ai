@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { toast } from "sonner";
 import api from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
 
 interface UploadResult {
   _id: string;
@@ -31,18 +32,29 @@ const ResumeUploader = ({ onUploadSuccess }: ResumeUploaderProps) => {
     if (dropped) setFile(dropped);
   }, []);
 
+  const { user, refreshUser } = useAuth();
+
   const handleUpload = async () => {
     if (!file) return;
+    if (!user) {
+      toast.error("You must be logged in to upload a resume.");
+      return;
+    }
+    
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append("resume", file);
-      formData.append("userId", "testuser123");
+      formData.append("userId", user._id);
       const res = await api.post("/resume/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setResult(res.data.data);
       onUploadSuccess?.(res.data.data);
+      
+      // Refresh user data to get persisted skills
+      await refreshUser();
+      
       toast.success("Resume uploaded successfully!");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Upload failed");

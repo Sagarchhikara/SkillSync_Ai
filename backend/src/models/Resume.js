@@ -1,61 +1,58 @@
-const mongoose = require('mongoose');
+const { db } = require('../config/firebase');
 
-const resumeSchema = new mongoose.Schema(
-    {
-        filename: {
-            type: String,
-            required: [true, 'Original filename is required']
-        },
-        filepath: {
-            type: String,
-            required: [true, 'Filepath is required']
-        },
-        rawText: {
-            type: String,
-            required: [true, 'Raw resume text is required for future NLP processing'],
-            trim: true
-        },
-        skills: {
-            type: [String],
-            required: [true, 'Extracted skills are required'],
-            validate: {
-                validator: function (v) {
-                    return v && v.length > 0;
-                },
-                message: 'A resume must contain at least one extracted skill'
-            },
-            set: function (skillsArr) {
-                // Deduplicate and lowercase before saving using strict logic
-                if (!Array.isArray(skillsArr)) return skillsArr;
-                return [...new Set(skillsArr.map(s => s.toLowerCase().trim()))];
-            }
-        },
-        uploadedAt: {
-            type: Date,
-            default: Date.now
-        },
-        // Optional future fields
-        userId: {
-            type: String, // String for flexibility (could be ObjectId ref later)
-            required: false
-        },
-        MatchScores: {
-            type: [Number],
-            required: false
-        },
-        analysisResults: {
-            type: mongoose.Schema.Types.Mixed,
-            required: false
-        }
+const COLLECTION = 'resumes';
+
+const Resume = {
+    /**
+     * Creates a new resume entry
+     * @param {object} resumeData 
+     */
+    async create(resumeData) {
+        const data = {
+            ...resumeData,
+            skills: (resumeData.skills || []).map(s => s.toLowerCase().trim()),
+            uploadedAt: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+        const docRef = await db.collection(COLLECTION).add(data);
+        return { _id: docRef.id, ...data };
     },
-    {
-        timestamps: true, // Automatically adds createdAt and updatedAt
-        strict: true // Enforce strict mode
+
+    /**
+     * Finds a resume by ID
+     * @param {string} id 
+     */
+    async findById(id) {
+        const doc = await db.collection(COLLECTION).doc(id).get();
+        if (!doc.exists) return null;
+        return { _id: doc.id, ...doc.data() };
+    },
+
+    /**
+     * Find resumes with query
+     * @param {object} query 
+     * @param {object} options 
+     */
+    async findOne(query, options = {}) {
+        let q = db.collection(COLLECTION);
+        
+        if (query._id) return this.findById(query._id);
+        
+        if (query.userId) q = q.where('userId', '==', query.userId);
+        
+        if (options.sort) {
+            // Firestore sorting requires index
+            const field = Object.keys(options.sort)[0];
+            const direction = options.sort[field] === -1 ? 'desc' : 'asc';
+            q = q.orderBy(field, direction);
+        }
+        
+        const snapshot = await q.limit(1).get();
+        if (snapshot.empty) return null;
+        const doc = snapshot.docs[0];
+        return { _id: doc.id, ...doc.data() };
     }
-);
+};
 
-// Explicitly define Indexes
-resumeSchema.index({ skills: 1 }); // For fast array matching query
-resumeSchema.index({ createdAt: -1 }); // For sorting recent resumes
-
-module.exports = mongoose.model('Resume', resumeSchema);
+module.exports = Resume;

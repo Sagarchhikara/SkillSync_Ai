@@ -1,4 +1,5 @@
 const Resume = require('../models/Resume');
+const User = require('../models/User');
 const { parseResumeFile } = require('../services/fileParserService');
 const { extractSkills } = require('../services/skillExtractionService');
 
@@ -37,13 +38,30 @@ const uploadResume = async (req, res) => {
             return res.status(400).json({ success: false, message: 'No skills extracted from resume' });
         }
 
-        // 3. Save resume data to MongoDB
-        const resume = await Resume.create({
+        const { userId } = req.body; // Expect frontend to send userId in form data
+        
+        // 3. Save resume data
+        const resumeData = {
             filename: originalName,
             filepath: filePath,
             rawText: rawText,
             skills: skills
-        });
+        };
+        
+        if (userId) {
+            resumeData.userId = userId;
+        }
+        
+        const resume = await Resume.create(resumeData);
+        
+        // Update user's recentResume id and persisted skills if user exists
+        if (userId) {
+            await User.findByIdAndUpdate(userId, { 
+                recentResumeId: resume._id,
+                skills: resume.skills,
+                education: resume.education || []
+            });
+        }
 
         // 4. Return response to frontend
         return res.status(200).json({

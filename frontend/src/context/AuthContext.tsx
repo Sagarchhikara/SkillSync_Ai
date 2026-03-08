@@ -1,9 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import api from "@/services/api";
 
 interface User {
-  id: string;
+  _id: string; // Ensure this matches MongoDB's format
   name: string;
   email: string;
+  skills?: string[];
+  education?: string[];
 }
 
 interface AuthContextType {
@@ -11,6 +14,7 @@ interface AuthContextType {
   token: string | null;
   login: (token: string, user: User) => void;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -43,8 +47,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("user");
   };
 
+  const refreshUser = async () => {
+    if (!user || !user._id) return;
+    try {
+      const { data } = await api.get(`/users/${user._id}/profile`);
+      if (data.success) {
+        setUser(data.data);
+        localStorage.setItem("user", JSON.stringify(data.data));
+      }
+    } catch (err) {
+      console.error("Failed to refresh user:", err);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, login, logout, refreshUser, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   );

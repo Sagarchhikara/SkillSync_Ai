@@ -64,19 +64,19 @@ const getAutoMatchForUser = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        // 1. Fetch user's most recent Resume (Assuming a simple userId concept for now)
-        // Since we don't have full auth, we'll try to find any resume, or the latest one
-        // Wait, the original code didn't strictly store userId, but Resume schema has it.
-        // Let's modify: we fetch the most recent resume in the DB if userId isn't properly linked yet, 
-        // to keep it simple for the demo, or query by userId if passed.
-        
+        const User = require('../models/User');
         let resumeQuery = {};
         if (userId && userId !== "testuser123") {
-            resumeQuery = { userId };
+            const user = await User.findById(userId);
+            if (user && user.recentResumeId) {
+                 resumeQuery = { _id: user.recentResumeId };
+            } else {
+                 resumeQuery = { userId };
+            }
         }
         
         // Find most recent resume
-        const latestResume = await Resume.findOne(resumeQuery).sort({ createdAt: -1 });
+        const latestResume = await Resume.findOne(resumeQuery, { sort: { createdAt: -1 } });
 
         if (!latestResume) {
             return res.status(404).json({
