@@ -1,0 +1,100 @@
+============================================================
+COMPREHENSIVE EVALUATION REPORT
+============================================================
+
+1. STRUCTURED SCENARIO TESTS
+------------------------------------------------------------
+
+Perfect Match:
+  Tests: 100
+  Expected Score: 100%
+  Average Score: 100.00%
+  Average Deviation: 0.00%
+
+Strong Match:
+  Tests: 100
+  Expected Score: 75%
+  Average Score: 73.71%
+  Average Deviation: 8.36%
+
+Partial Match:
+  Tests: 100
+  Expected Score: 50%
+  Average Score: 64.09%
+  Average Deviation: 17.26%
+
+Weak Match:
+  Tests: 100
+  Expected Score: 20%
+  Average Score: 53.96%
+  Average Deviation: 34.16%
+
+No Match:
+  Tests: 100
+  Expected Score: 0%
+  Average Score: 0.00%
+  Average Deviation: 0.00%
+
+Multi-domain:
+  Tests: 100
+  Expected Score: 60%
+  Average Score: 62.67%
+  Average Deviation: 7.73%
+
+
+2. SYNONYM MATCHING TESTS
+------------------------------------------------------------
+Total Tests: 26
+Passed: 0
+Failed: 26
+Pass Rate: 0.00%
+
+Example Tests:
+  "react" ↔ "reactjs": ✗ FAIL
+  "react" ↔ "react.js": ✗ FAIL
+  "reactjs" ↔ "react.js": ✗ FAIL
+  "node.js" ↔ "nodejs": ✗ FAIL
+  "node.js" ↔ "node js": ✗ FAIL
+
+
+3. NOISE EXTRACTION TESTS
+------------------------------------------------------------
+Total Texts: 10
+Texts with Skills: 10
+Average Skills Extracted: 3.10
+
+Examples:
+
+  Text: "Developed scalable backend APIs using NodeJS, Expr..."
+  Extracted (3): nodejs, express, mongodb
+
+  Text: "Built responsive web applications with React, Redu..."
+  Extracted (3): react, typescript, redux
+
+  Text: "Deployed containerized applications using Docker a..."
+  Extracted (3): docker, kubernetes, aws
+
+  Text: "Implemented machine learning models with TensorFlo..."
+  Extracted (4): tensorflow, pytorch, machine learning, nlp
+
+  Text: "Designed and optimized SQL databases including Pos..."
+  Extracted (3): sql, postgresql, mysql
+
+  Text: "Created mobile applications using React Native for..."
+  Extracted (4): react, react native, ios, android
+
+  Text: "Managed CI/CD pipelines with Jenkins, GitLab CI, a..."
+  Extracted (2): jenkins, gitlab ci
+
+  Text: "Developed microservices architecture using Spring ..."
+  Extracted (3): spring, spring boot, java
+
+  Text: "Built data pipelines with Apache Spark, Hadoop, an..."
+  Extracted (3): etl, spark, hadoop
+
+  Text: "Implemented RESTful APIs with Flask and FastAPI in..."
+  Extracted (3): flask, fastapi, python
+
+============================================================
+EVALUATION COMPLETE
+============================================================

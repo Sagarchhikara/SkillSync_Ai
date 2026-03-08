@@ -1,0 +1,22 @@
+{
+  "synonymGroups": [
+    ["react", "reactjs", "react.js"],
+    ["node.js", "nodejs", "node js"],
+    ["express", "expressjs", "express.js"],
+    ["vue", "vuejs", "vue.js"],
+    ["angular", "angularjs"],
+    ["kubernetes", "k8s"],
+    ["machine learning", "ml"],
+    ["artificial intelligence", "ai"],
+    ["natural language processing", "nlp"],
+    ["postgresql", "postgres"],
+    ["mongodb", "mongo"],
+    ["javascript", "js"],
+    ["typescript", "ts"],
+    ["python", "py"],
+    ["spring boot", "springboot"],
+    ["react native", "reactnative"],
+    ["next.js", "nextjs"],
+    ["scikit-learn", "sklearn"]
+  ]
+}

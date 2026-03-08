@@ -1,0 +1,34 @@
+{
+  "resumes": [
+    {
+      "id": "R1",
+      "skills": ["react", "node.js", "mongodb", "docker", "aws"],
+      "targetJobId": "J1",
+      "experience": "3 years"
+    },
+    {
+      "id": "R2",
+      "skills": ["python", "tensorflow", "pytorch", "machine learning", "pandas"],
+      "targetJobId": "J2",
+      "experience": "4 years"
+    },
+    {
+      "id": "R3",
+      "skills": ["java", "spring boot", "postgresql", "kubernetes", "docker"],
+      "targetJobId": "J3",
+      "experience": "5 years"
+    },
+    {
+      "id": "R4",
+      "skills": ["angular", "typescript", "nodejs", "mongodb"],
+      "targetJobId": "J1",
+      "experience": "2 years"
+    },
+    {
+      "id": "R5",
+      "skills": ["react native", "swift", "kotlin", "ios", "android"],
+      "targetJobId": "J4",
+      "experience": "3 years"
+    }
+  ]
+}

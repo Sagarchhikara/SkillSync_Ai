@@ -1,0 +1,80 @@
+{
+  "frontend": [
+    "react",
+    "reactjs",
+    "angular",
+    "vue",
+    "vuejs",
+    "javascript",
+    "typescript",
+    "html",
+    "css",
+    "webpack",
+    "redux",
+    "nextjs"
+  ],
+  "backend": [
+    "node.js",
+    "nodejs",
+    "express",
+    "expressjs",
+    "spring",
+    "spring boot",
+    "django",
+    "flask",
+    "fastapi",
+    "java",
+    "python",
+    "ruby on rails"
+  ],
+  "devops": [
+    "docker",
+    "kubernetes",
+    "k8s",
+    "aws",
+    "azure",
+    "gcp",
+    "jenkins",
+    "gitlab ci",
+    "terraform",
+    "ansible",
+    "linux",
+    "bash"
+  ],
+  "ai_ml": [
+    "tensorflow",
+    "pytorch",
+    "machine learning",
+    "ml",
+    "deep learning",
+    "nlp",
+    "computer vision",
+    "scikit-learn",
+    "keras",
+    "pandas",
+    "numpy"
+  ],
+  "data": [
+    "sql",
+    "postgresql",
+    "mysql",
+    "mongodb",
+    "redis",
+    "elasticsearch",
+    "data analysis",
+    "etl",
+    "spark",
+    "hadoop",
+    "bigquery"
+  ],
+  "mobile": [
+    "react native",
+    "flutter",
+    "swift",
+    "kotlin",
+    "ios",
+    "android",
+    "mobile development",
+    "xamarin"
+  ]
+}

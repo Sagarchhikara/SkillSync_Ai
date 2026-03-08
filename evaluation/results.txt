@@ -1,0 +1,8 @@
+Evaluation Report
+=================
+{
+  totalTests: 1000,
+  perfectMatches: 5,
+  zeroMatches: 167,
+  averageScore: 30.84857142857135
+}

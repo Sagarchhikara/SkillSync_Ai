@@ -1,0 +1,28 @@
+{
+  "jobs": [
+    {
+      "id": "J1",
+      "title": "Full Stack Developer",
+      "skills": ["react", "node.js", "mongodb", "docker"],
+      "experience": "2-4 years"
+    },
+    {
+      "id": "J2",
+      "title": "Machine Learning Engineer",
+      "skills": ["python", "tensorflow", "machine learning", "pytorch"],
+      "experience": "3-5 years"
+    },
+    {
+      "id": "J3",
+      "title": "Backend Java Developer",
+      "skills": ["java", "spring boot", "postgresql", "kubernetes"],
+      "experience": "4-6 years"
+    },
+    {
+      "id": "J4",
+      "title": "Mobile Developer",
+      "skills": ["react native", "ios", "android", "mobile development"],
+      "experience": "2-4 years"
+    }
+  ]
+}

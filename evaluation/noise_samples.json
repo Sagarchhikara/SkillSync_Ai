@@ -1,0 +1,14 @@
+{
+  "resumeTexts": [
+    "Developed scalable backend APIs using NodeJS, Express and MongoDB.",
+    "Built responsive web applications with React, Redux, and TypeScript.",
+    "Deployed containerized applications using Docker and Kubernetes on AWS.",
+    "Implemented machine learning models with TensorFlow and PyTorch for NLP tasks.",
+    "Designed and optimized SQL databases including PostgreSQL and MySQL.",
+    "Created mobile applications using React Native for iOS and Android platforms.",
+    "Managed CI/CD pipelines with Jenkins, GitLab CI, and automated deployments.",
+    "Developed microservices architecture using Spring Boot and Java.",
+    "Built data pipelines with Apache Spark, Hadoop, and ETL processes.",
+    "Implemented RESTful APIs with Flask and FastAPI in Python."
+  ]
+}
