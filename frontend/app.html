@@ -905,7 +905,7 @@ button,input,select,textarea{font-family:var(--ff-body)}
    CONFIG — Change BASE_URL to your server
 ───────────────────────────────────── */
 const API = {
-  BASE: 'http://localhost:5000',   // ← YOUR BACKEND BASE URL
+  BASE: '',   // Uses Vite proxy in dev, same-origin in prod
   post: async (path, body, auth=false) => {
     const headers = {'Content-Type':'application/json'};
     if(auth){ const t=Store.get('token'); if(t) headers['Authorization']=`Bearer ${t}`; }
