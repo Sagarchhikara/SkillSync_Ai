@@ -2,47 +2,16 @@ const request = require('supertest');
 const app = require('../../app');
 const Job = require('../../models/Job');
 
-// Mock Firebase config
-let mockData = {};
-jest.mock('../../config/firebase', () => {
-    return {
-        db: {
-            collection: jest.fn().mockImplementation((name) => ({
-                add: jest.fn().mockImplementation((d) => {
-                    const id = 'mock-' + Math.random().toString(36).substr(2, 9);
-                    mockData[id] = d;
-                    return Promise.resolve({ id });
-                }),
-                doc: jest.fn().mockImplementation((id) => ({
-                    get: jest.fn().mockResolvedValue({
-                        exists: !!mockData[id],
-                        id: id,
-                        data: () => mockData[id] || {}
-                    }),
-                    update: jest.fn().mockImplementation((update) => {
-                        mockData[id] = { ...mockData[id], ...update };
-                        return Promise.resolve();
-                    })
-                })),
-                get: jest.fn().mockImplementation(() => Promise.resolve({
-                    docs: Object.keys(mockData).map(id => ({
-                        id,
-                        data: () => mockData[id]
-                    }))
-                }))
-            }))
-        },
-        admin: {
-            credential: { cert: jest.fn() },
-            initializeApp: jest.fn()
-        }
-    };
-});
+const { clearFirestoreDb } = require('../../config/testUtils');
 
 describe('jobController - Unit Tests', () => {
-    beforeEach(() => {
-        mockData = {}; // Clear mock data before each test
+    beforeEach(async () => {
+        await clearFirestoreDb();
         jest.clearAllMocks();
+    });
+
+    afterAll(async () => {
+        await clearFirestoreDb();
     });
 
     it('should create a job successfully', async () => {
@@ -83,7 +52,9 @@ describe('jobController - Unit Tests', () => {
         expect(res.status).toBe(201);
         expect(res.body.success).toBe(true);
         expect(res.body.count).toBe(5);
-        // Note: find() in our mock returns what we added
+        
+        const jobsRes = await request(app).get('/api/jobs');
+        expect(jobsRes.body.data.length).toBeGreaterThanOrEqual(5);
     });
 
     it('should get all jobs successfully', async () => {

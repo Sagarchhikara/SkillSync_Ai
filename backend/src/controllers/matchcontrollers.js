@@ -1,5 +1,6 @@
 const Resume = require('../models/Resume');
 const Job = require('../models/Job');
+const User = require('../models/User');
 const { calculateMatch } = require('../services/matchService');
 
 /**
@@ -29,7 +30,7 @@ const getMatchScore = async (req, res) => {
         }
 
         // 3. Call matchService (Pure Logic)
-        const matchResult = calculateMatch(resume.skills, job.requiredSkills);
+        const matchResult = await calculateMatch(resume.skills, job.requiredSkills);
 
         // 4. Return result
         return res.status(200).json({
@@ -63,8 +64,6 @@ const getMatchScore = async (req, res) => {
 const getAutoMatchForUser = async (req, res) => {
     try {
         const { userId } = req.params;
-
-        const User = require('../models/User');
         let resumeQuery = {};
         if (userId && userId !== "testuser123") {
             const user = await User.findById(userId);
@@ -97,8 +96,8 @@ const getAutoMatchForUser = async (req, res) => {
         }
 
         // 3. Calculate match score for every job against this resume
-        const rankedJobs = allJobs.map(job => {
-            const matchResult = calculateMatch(latestResume.skills, job.requiredSkills);
+        const rankedJobs = await Promise.all(allJobs.map(async job => {
+            const matchResult = await calculateMatch(latestResume.skills, job.requiredSkills);
             return {
                 job: {
                     _id: job._id,
@@ -108,7 +107,7 @@ const getAutoMatchForUser = async (req, res) => {
                 },
                 matchDetails: matchResult
             };
-        });
+        }));
 
         // 4. Sort descending by highest match score
         rankedJobs.sort((a, b) => b.matchDetails.matchPercentage - a.matchDetails.matchPercentage);

@@ -5,6 +5,7 @@ const { extractSkills } = require('../../services/skillExtractionService');
 
 // Mock dependencies
 jest.mock('../../models/Resume');
+jest.mock('../../models/User');
 jest.mock('../../services/fileParserService');
 jest.mock('../../services/skillExtractionService');
 
@@ -17,6 +18,9 @@ describe('resumeController - Unit Tests', () => {
             file: {
                 path: 'uploads/test_resume.pdf',
                 originalname: 'test_resume.pdf'
+            },
+            body: {
+                userId: 'test-user-id'
             }
         };
 
@@ -27,6 +31,8 @@ describe('resumeController - Unit Tests', () => {
 
         // Reset mocks
         jest.clearAllMocks();
+        const User = require('../../models/User');
+        User.findByIdAndUpdate = jest.fn().mockResolvedValue({});
     });
 
     it('should successfully upload and process a resume', async () => {
@@ -52,7 +58,8 @@ describe('resumeController - Unit Tests', () => {
             filename: 'test_resume.pdf',
             filepath: 'uploads/test_resume.pdf',
             rawText,
-            skills
+            skills,
+            userId: 'test-user-id'
         });
 
         expect(mockRes.status).toHaveBeenCalledWith(200);

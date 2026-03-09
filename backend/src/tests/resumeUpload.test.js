@@ -4,50 +4,7 @@ const Resume = require('../models/Resume');
 const path = require('path');
 const fs = require('fs');
 
-// Mock Firebase config
-jest.mock('../config/firebase', () => {
-    const mockDoc = (id, data) => ({
-        exists: !!data,
-        id: id,
-        data: () => data,
-        get: jest.fn().mockResolvedValue({
-            exists: !!data,
-            id: id,
-            data: () => data
-        })
-    });
-
-    const mockCollection = (data) => ({
-        add: jest.fn().mockImplementation((d) => Promise.resolve({ id: 'mock-id' })),
-        doc: jest.fn().mockImplementation((id) => ({
-            get: jest.fn().mockResolvedValue({
-                exists: true,
-                id: id,
-                data: () => data[id] || {}
-            }),
-            update: jest.fn().mockResolvedValue({})
-        })),
-        where: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockReturnThis(),
-        orderBy: jest.fn().mockReturnThis(),
-        get: jest.fn().mockResolvedValue({
-            empty: false,
-            docs: [{ id: 'mock-id', data: () => ({ skills: ['node.js', 'react'], rawText: 'mock text' }) }]
-        })
-    });
-
-    return {
-        db: {
-            collection: jest.fn().mockImplementation((name) => mockCollection({}))
-        },
-        admin: {
-            credential: {
-                cert: jest.fn()
-            },
-            initializeApp: jest.fn()
-        }
-    };
-});
+const { clearFirestoreDb } = require('../config/testUtils');
 
 jest.mock('../services/fileParserService');
 jest.mock('../services/skillExtractionService');
@@ -64,10 +21,11 @@ describe('Resume Upload Integration Tests', () => {
     });
 
     afterAll(async () => {
-        // Clean up
+        await clearFirestoreDb();
     });
 
-    afterEach(async () => {
+    beforeEach(async () => {
+        await clearFirestoreDb();
         jest.clearAllMocks();
     });
 

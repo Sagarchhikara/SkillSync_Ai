@@ -39,10 +39,27 @@ const Resume = {
         
         if (query._id) return this.findById(query._id);
         
-        if (query.userId) q = q.where('userId', '==', query.userId);
+        if (query.userId) {
+            // Fetch all for user to avoid composite index requirement
+            const snapshot = await db.collection(COLLECTION).where('userId', '==', query.userId).get();
+            if (snapshot.empty) return null;
+            
+            let docs = snapshot.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+            
+            if (options.sort) {
+                const field = Object.keys(options.sort)[0];
+                const direction = options.sort[field] === -1 ? -1 : 1;
+                docs.sort((a, b) => {
+                    const aVal = a[field] ? (a[field].toDate ? a[field].toDate() : new Date(a[field])) : 0;
+                    const bVal = b[field] ? (b[field].toDate ? b[field].toDate() : new Date(b[field])) : 0;
+                    return aVal < bVal ? -direction : (aVal > bVal ? direction : 0);
+                });
+            }
+            return docs[0];
+        }
         
+        // General query if no userId
         if (options.sort) {
-            // Firestore sorting requires index
             const field = Object.keys(options.sort)[0];
             const direction = options.sort[field] === -1 ? 'desc' : 'asc';
             q = q.orderBy(field, direction);

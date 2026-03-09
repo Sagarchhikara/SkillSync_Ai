@@ -4,69 +4,17 @@ const Resume = require('../../models/Resume');
 const Job = require('../../models/Job');
 const User = require('../../models/User');
 
-// Mock Firebase config
-let mockData = {};
-jest.mock('../../config/firebase', () => {
-    return {
-        db: {
-            collection: jest.fn().mockImplementation((collectionName) => {
-                const collectionStore = mockData[collectionName] || {};
-                mockData[collectionName] = collectionStore;
-
-                const queryMock = {
-                    where: jest.fn().mockImplementation((field, op, val) => {
-                        const filtered = Object.keys(collectionStore)
-                            .filter(id => collectionStore[id][field] === val)
-                            .map(id => ({ id, data: () => collectionStore[id] }));
-                        
-                        const subQuery = { ...queryMock };
-                        subQuery.get = jest.fn().mockResolvedValue({
-                            empty: filtered.length === 0,
-                            docs: filtered
-                        });
-                        return subQuery;
-                    }),
-                    orderBy: jest.fn().mockReturnThis(),
-                    limit: jest.fn().mockReturnThis(),
-                    add: jest.fn().mockImplementation((d) => {
-                        const id = 'mock-' + collectionName + '-' + Math.random().toString(36).substr(2, 9);
-                        collectionStore[id] = d;
-                        return Promise.resolve({ id });
-                    }),
-                    doc: jest.fn().mockImplementation((id) => ({
-                        get: jest.fn().mockResolvedValue({
-                            exists: !!collectionStore[id],
-                            id: id,
-                            data: () => collectionStore[id] || {}
-                        }),
-                        update: jest.fn().mockImplementation((update) => {
-                            collectionStore[id] = { ...collectionStore[id], ...update };
-                            return Promise.resolve();
-                        })
-                    })),
-                    get: jest.fn().mockImplementation(() => Promise.resolve({
-                        empty: Object.keys(collectionStore).length === 0,
-                        docs: Object.keys(collectionStore).map(id => ({
-                            id,
-                            data: () => collectionStore[id]
-                        }))
-                    }))
-                };
-                return queryMock;
-            })
-        },
-        admin: {
-            credential: { cert: jest.fn() },
-            initializeApp: jest.fn()
-        }
-    };
-});
+const { clearFirestoreDb } = require('../../config/testUtils');
 
 describe('Match API (matchController integration)', () => {
 
-    beforeEach(() => {
-        mockData = {};
+    beforeEach(async () => {
+        await clearFirestoreDb();
         jest.clearAllMocks();
+    });
+
+    afterAll(async () => {
+        await clearFirestoreDb();
     });
 
     it('should return 200 and correct match analysis for valid ObjectIDs', async () => {
