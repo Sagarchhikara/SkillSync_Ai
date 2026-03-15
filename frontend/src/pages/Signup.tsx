@@ -15,6 +15,7 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<"applicant" | "recruiter">("applicant");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const Signup = () => {
     }
     setLoading(true);
     try {
-      const res = await api.post("/auth/signup", { name, email, password });
+      const res = await api.post("/auth/signup", { name, email, password, role });
       login(res.data.token, res.data.user);
       toast.success("Account created successfully!");
       navigate("/dashboard");
@@ -68,6 +69,25 @@ const Signup = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 space-y-5">
+          <div className="space-y-2">
+            <Label>I am a</Label>
+            <div className="flex gap-4">
+              <div 
+                className={`flex-1 cursor-pointer rounded-lg border p-3 text-center transition-all ${role === "applicant" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                onClick={() => setRole("applicant")}
+              >
+                <div className="font-semibold">Applicant</div>
+                <div className="text-xs text-muted-foreground mt-1">Looking for a job</div>
+              </div>
+              <div 
+                className={`flex-1 cursor-pointer rounded-lg border p-3 text-center transition-all ${role === "recruiter" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                onClick={() => setRole("recruiter")}
+              >
+                <div className="font-semibold">Recruiter</div>
+                <div className="text-xs text-muted-foreground mt-1">Hiring talent</div>
+              </div>
+            </div>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
             <Input id="name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />

@@ -467,7 +467,7 @@
     font-family: var(--font-display); font-size: 48px; font-weight: 800;
     letter-spacing: -2px; line-height: 1; margin-bottom: 16px;
     background: linear-gradient(135deg, var(--lime), var(--cyan));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   }
   .value-card h4 { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 8px; }
   .value-card p { font-size: 13px; color: var(--text2); line-height: 1.5; }
@@ -646,10 +646,13 @@
   /* ─── MOBILE NAV TOGGLE ─────────────── */
   .nav-mobile-toggle { display: none; background: none; border: none; color: var(--text); font-size: 22px; cursor: pointer; }
 
+  .mobile-only { display: none; }
   @media (max-width: 900px) {
     nav { padding: 16px 24px; }
     .nav-links { display: none; }
+    .nav-cta { display: none; }
     .nav-mobile-toggle { display: block; }
+    .mobile-only { display: block !important; }
     .hero { padding: 100px 24px 60px; }
     .hero h1 { font-size: 42px; letter-spacing: -2px; }
     .how-grid { grid-template-columns: 1fr; }
@@ -685,6 +688,7 @@
     <li><a href="#" onclick="showPage('features')">Features</a></li>
     <li><a href="#" onclick="showPage('pricing')">Pricing</a></li>
     <li><a href="#" onclick="showPage('about')">About</a></li>
+    <li class="mobile-only"><a href="app.html" style="color:var(--lime);font-weight:600;">Sign in / Get Started →</a></li>
   </ul>
   <div class="nav-cta">
     <a class="btn-ghost" href="app.html">Sign in</a>
@@ -1227,6 +1231,10 @@
       target.classList.add('active');
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
+    const nav = document.querySelector('.nav-links');
+    if (window.innerWidth <= 900 && nav) {
+      nav.style.display = '';
+    }
   }
 
   function toggleMobileMenu() {
@@ -1242,9 +1250,9 @@
   window.addEventListener('scroll', () => {
     const nav = document.getElementById('navbar');
     if (window.scrollY > 60) {
-      nav.style.padding = '14px 60px';
+      nav.style.padding = window.innerWidth <= 900 ? '12px 24px' : '14px 60px';
     } else {
-      nav.style.padding = '20px 60px';
+      nav.style.padding = window.innerWidth <= 900 ? '16px 24px' : '20px 60px';
     }
   });
 

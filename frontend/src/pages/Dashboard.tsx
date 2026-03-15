@@ -5,11 +5,12 @@ import MatchResults from "@/components/MatchResults";
 import JobUploader from "@/components/JobUploader";
 import SavedJobs from "@/components/SavedJobs";
 import { motion } from "framer-motion";
-import { Bell, User, FileText, Target, TrendingUp } from "lucide-react";
+import { Bell, User, FileText, Target, TrendingUp, Briefcase } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const DashboardHome = () => {
   const { user } = useAuth();
+  const isRecruiter = user?.role === "recruiter";
   
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
@@ -21,11 +22,18 @@ const DashboardHome = () => {
       </div>
       
       <div className="grid gap-4 md:grid-cols-3">
-        {[
-          { icon: FileText, label: "Resumes Uploaded", value: "3", color: "text-primary" },
-          { icon: Target, label: "Jobs Matched", value: "12", color: "text-accent" },
-          { icon: TrendingUp, label: "Avg Match Score", value: "85%", color: "text-success" },
-        ].map((stat) => (
+        {(isRecruiter
+          ? [
+              { icon: Briefcase, label: "Active Jobs", value: "5", color: "text-primary" },
+              { icon: Target, label: "Candidates Matched", value: "24", color: "text-accent" },
+              { icon: TrendingUp, label: "Avg Match Score", value: "88%", color: "text-success" },
+            ]
+          : [
+              { icon: FileText, label: "Resumes Uploaded", value: "3", color: "text-primary" },
+              { icon: Target, label: "Jobs Matched", value: "12", color: "text-accent" },
+              { icon: TrendingUp, label: "Avg Match Score", value: "85%", color: "text-success" },
+            ]
+        ).map((stat) => (
           <div key={stat.label} className="glass rounded-2xl p-6">
             <div className="flex items-center gap-3">
               <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-muted ${stat.color}`}>
@@ -41,44 +49,55 @@ const DashboardHome = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="glass rounded-2xl p-6">
-            <h3 className="mb-4 text-lg font-semibold text-foreground">Quick Upload</h3>
-            <ResumeUploader />
+        {isRecruiter ? (
+          <div className="lg:col-span-3 space-y-6">
+            <div className="glass rounded-2xl p-6">
+              <h3 className="mb-4 text-lg font-semibold text-foreground">Active Job Postings Overview</h3>
+              <p className="text-sm text-muted-foreground">You currently have no active job postings. Go to Jobs to create one.</p>
+            </div>
           </div>
-          <div className="glass rounded-2xl p-6">
-            <h3 className="mb-4 text-lg font-semibold text-foreground">Quick Match</h3>
-            <MatchResults />
-          </div>
-        </div>
-        
-        <div className="space-y-6">
-          <div className="glass rounded-2xl p-6">
-            <h3 className="mb-4 text-lg font-semibold text-foreground">My Profile Skills</h3>
-            {user?.skills && user.skills.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {user.skills.map((skill) => (
-                  <span key={skill} className="rounded-full bg-primary/15 px-3 py-1 text-xs font-medium text-primary capitalize">
-                    {skill}
-                  </span>
-                ))}
+        ) : (
+          <>
+            <div className="lg:col-span-2 space-y-6">
+              <div className="glass rounded-2xl p-6">
+                <h3 className="mb-4 text-lg font-semibold text-foreground">Quick Upload</h3>
+                <ResumeUploader />
               </div>
-            ) : (
-              <p className="text-sm text-muted-foreground italic">No skills extracted yet. Upload a resume to see your skills here!</p>
-            )}
+              <div className="glass rounded-2xl p-6">
+                <h3 className="mb-4 text-lg font-semibold text-foreground">Quick Match</h3>
+                <MatchResults />
+              </div>
+            </div>
             
-            {user?.education && user.education.length > 0 && (
-              <div className="mt-6">
-                <h4 className="mb-2 text-sm font-semibold text-foreground">Education</h4>
-                <div className="space-y-2">
-                  {user.education.map((edu, idx) => (
-                    <p key={idx} className="text-sm text-muted-foreground">{edu}</p>
-                  ))}
-                </div>
+            <div className="space-y-6">
+              <div className="glass rounded-2xl p-6">
+                <h3 className="mb-4 text-lg font-semibold text-foreground">My Profile Skills</h3>
+                {user?.skills && user.skills.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {user.skills.map((skill) => (
+                      <span key={skill} className="rounded-full bg-primary/15 px-3 py-1 text-xs font-medium text-primary capitalize">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">No skills extracted yet. Upload a resume to see your skills here!</p>
+                )}
+                
+                {user?.education && user.education.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="mb-2 text-sm font-semibold text-foreground">Education</h4>
+                    <div className="space-y-2">
+                      {user.education.map((edu, idx) => (
+                        <p key={idx} className="text-sm text-muted-foreground">{edu}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </motion.div>
   );

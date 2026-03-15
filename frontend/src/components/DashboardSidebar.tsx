@@ -16,12 +16,19 @@ const navItems = [
 const DashboardSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+
+  const filteredNavItems = navItems.filter((item) => {
+    if (user?.role === "recruiter") {
+      return item.path === "/dashboard" || item.path === "/dashboard/jobs";
+    }
+    return true;
+  });
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-border bg-sidebar">
@@ -33,7 +40,7 @@ const DashboardSidebar = () => {
       </div>
 
       <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => {
+        {filteredNavItems.map((item) => {
           const active = location.pathname === item.path;
           return (
             <Link

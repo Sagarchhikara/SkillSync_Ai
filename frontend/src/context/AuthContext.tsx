@@ -5,6 +5,7 @@ interface User {
   _id: string; // Ensure this matches MongoDB's format
   name: string;
   email: string;
+  role?: 'applicant' | 'recruiter';
   skills?: string[];
   education?: string[];
 }

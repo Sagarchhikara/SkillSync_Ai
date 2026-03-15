@@ -184,7 +184,7 @@ button,input,select,textarea{font-family:var(--ff-body)}
    AUTH PAGES
 ════════════════════════════════════════ */
 .auth-page{
-  min-height:100vh;display:grid;grid-template-columns:1fr 1fr;
+  min-height:100vh;display:grid;grid-template-columns:1fr 1fr;padding-top:73px;
 }
 .auth-left{
   display:flex;flex-direction:column;justify-content:center;
@@ -464,18 +464,21 @@ button,input,select,textarea{font-family:var(--ff-body)}
 .view{display:none}
 .view.active{display:block}
 .app-view{display:none}
-.app-view.active{display:flex}
+.app-view.active{display:flex;padding-top:73px;}
+.nav-mobile-toggle { display:none; background:none; border:none; color:var(--text); font-size:22px; cursor:pointer; margin-right: 16px; padding-bottom: 2px; }
 
 /* ════════════════════════════════════════
    RESPONSIVE
 ════════════════════════════════════════ */
 @media(max-width:900px){
+  body.is-app .nav-mobile-toggle { display: block; }
   .auth-right{display:none}
   .auth-page{grid-template-columns:1fr}
   .auth-left{padding:80px 32px}
   .stats-row{grid-template-columns:1fr 1fr}
   .dashboard-grid{grid-template-columns:1fr}
-  .sidebar{display:none}
+  .sidebar{display:flex !important; position:fixed; left:-260px; top:73px; height:calc(100vh - 73px); z-index:300; transition: left 0.3s ease; width: 240px;}
+  .sidebar.open{left:0;}
   .main-content{padding:24px 20px}
   #navbar{padding:16px 24px}
 }
@@ -488,9 +491,12 @@ button,input,select,textarea{font-family:var(--ff-body)}
 
 <!-- ══ NAVBAR ══ -->
 <nav id="navbar">
-  <div class="nav-logo" onclick="window.location.href='index.html'">
-    <div class="logo-dot"></div>
-    SkillSync<span class="text-lime">AI</span>
+  <div style="display:flex;align-items:center;">
+    <button class="nav-mobile-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="nav-logo" onclick="window.location.href='index.html'">
+      <div class="logo-dot"></div>
+      SkillSync<span class="text-lime">AI</span>
+    </div>
   </div>
   <div class="nav-right" id="nav-right">
     <button class="btn btn-secondary btn-sm" onclick="App.navigate('login')">Sign In</button>
@@ -586,6 +592,13 @@ button,input,select,textarea{font-family:var(--ff-body)}
         <div class="form-group">
           <label class="form-label">Password</label>
           <input id="signup-password" type="password" class="form-input" placeholder="Min 8 characters" required minlength="8"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">I am a</label>
+          <select id="signup-role" class="form-input" required>
+            <option value="applicant">Applicant (Looking for jobs)</option>
+            <option value="recruiter">Recruiter (Hiring talent)</option>
+          </select>
         </div>
         <button type="submit" class="btn-submit" id="signup-btn">
           Create account →
@@ -701,23 +714,8 @@ button,input,select,textarea{font-family:var(--ff-body)}
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
             <h3 style="font-family:var(--ff-display);font-size:18px;font-weight:700">Quick Actions</h3>
           </div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('resume')">
-              <span style="font-size:24px">📄</span>
-              <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">Upload Resume</div><div style="font-size:12px;color:var(--text2)">Get AI skill extraction</div></div>
-            </button>
-            <button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('matches')">
-              <span style="font-size:24px">🎯</span>
-              <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">Run Auto-Match</div><div style="font-size:12px;color:var(--text2)">Match resume to all jobs</div></div>
-            </button>
-            <button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('jobs')">
-              <span style="font-size:24px">💼</span>
-              <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">Browse Jobs</div><div style="font-size:12px;color:var(--text2)">Explore all opportunities</div></div>
-            </button>
-            <button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('profile')">
-              <span style="font-size:24px">👤</span>
-              <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">View Profile</div><div style="font-size:12px;color:var(--text2)">Skills & education</div></div>
-            </button>
+          <div id="dash-quick-actions" style="display:flex;flex-direction:column;gap:10px">
+            <!-- Populated securely by JS -->
           </div>
         </div>
       </div>
@@ -785,9 +783,12 @@ button,input,select,textarea{font-family:var(--ff-body)}
 
     <!-- ── JOBS PANEL ── -->
     <section class="view" id="panel-jobs">
-      <div class="page-header">
-        <h1 class="page-title">Browse Jobs</h1>
-        <p class="page-subtitle">Explore all available positions. Save the ones you love.</p>
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h1 class="page-title">Browse Jobs</h1>
+          <p class="page-subtitle">Explore all available positions. Save the ones you love.</p>
+        </div>
+        <button class="btn btn-primary" id="btn-add-job-header" onclick="Jobs.openAddModal()" style="display:none">+ Post a Job</button>
       </div>
       <div class="filter-row">
         <div class="search-bar" style="max-width:340px">
@@ -897,6 +898,42 @@ button,input,select,textarea{font-family:var(--ff-body)}
   </div>
 </div>
 
+<!-- ══ ADD JOB MODAL ══ -->
+<div class="modal-overlay hidden" id="add-job-modal" onclick="Jobs.closeAddModal(event)">
+  <div class="modal" id="add-job-modal-inner">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Post a New Job</div>
+        <div style="font-size:14px;color:var(--text2);margin-top:4px">Add an opportunity for top matching talent.</div>
+      </div>
+      <button class="modal-close" onclick="Jobs.closeAddModal()">✕</button>
+    </div>
+    <form onsubmit="Jobs.submitJob(event)">
+      <div class="form-group">
+        <label class="form-label">Job Title</label>
+        <input id="add-job-title" type="text" class="form-input" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Company Name</label>
+        <input id="add-job-company" type="text" class="form-input" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Required Skills (comma separated)</label>
+        <input id="add-job-skills" type="text" class="form-input" placeholder="e.g. React, Node.js, AWS" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Minimum Experience (years)</label>
+        <input id="add-job-exp" type="number" class="form-input" min="0" value="0" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea id="add-job-desc" class="form-input" rows="4"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%" id="add-job-btn">Post Job</button>
+    </form>
+  </div>
+</div>
+
 <!-- ══════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════ -->
@@ -908,7 +945,7 @@ const API = {
   BASE: '',   // Uses Vite proxy in dev, same-origin in prod
   post: async (path, body, auth=false) => {
     const headers = {'Content-Type':'application/json'};
-    if(auth){ const t=Store.get('token'); if(t) headers['Authorization']=`Bearer ${t}`; }
+    const t=Store.get('token'); if(t) headers['Authorization']=`Bearer ${t}`;
     const r = await fetch(API.BASE+path,{method:'POST',headers,body:JSON.stringify(body)});
     return r.json();
   },
@@ -970,12 +1007,24 @@ const App = {
     const user = Store.get('user');
     const navRight = document.getElementById('nav-right');
     if(user && ['dashboard','jobs','matches','resume','saved','profile'].includes(view)){
+      document.body.classList.add('is-app');
       navRight.innerHTML = `
         <div class="nav-user-btn" onclick="AppNav.go('profile')">
           <div class="nav-avatar">${user.name?user.name[0].toUpperCase():'U'}</div>
           <span class="nav-username">${user.name||'User'}</span>
         </div>`;
+      
+      // RBAC for navigation & UI elements
+      const isRecruiter = user.role === 'recruiter';
+      const snResume = document.getElementById('sn-resume');
+      if (snResume) snResume.style.display = isRecruiter ? 'none' : 'flex';
+      const snMatches = document.getElementById('sn-matches'); 
+      if (snMatches) snMatches.style.display = isRecruiter ? 'none' : 'flex';
+      const btnAddJobHeader = document.getElementById('btn-add-job-header');
+      if (btnAddJobHeader) btnAddJobHeader.style.display = isRecruiter ? 'flex' : 'none';
+
     } else {
+      document.body.classList.remove('is-app');
       navRight.innerHTML = `
         <button class="btn btn-secondary btn-sm" onclick="App.navigate('login')">Sign In</button>
         <button class="btn btn-primary btn-sm" onclick="App.navigate('signup')">Get Started</button>`;
@@ -983,6 +1032,11 @@ const App = {
     window.scrollTo({top:0,behavior:'instant'});
   }
 };
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.classList.toggle('open');
+}
 
 const AppNav = {
   go(panel){
@@ -992,6 +1046,8 @@ const AppNav = {
     if(panelEl) panelEl.classList.add('active');
     const navEl = document.getElementById(`sn-${panel}`);
     if(navEl) navEl.classList.add('active');
+    const sidebar = document.getElementById('sidebar');
+    if(sidebar) sidebar.classList.remove('open');
     // Lazy load data
     if(panel==='jobs') Jobs.load();
     if(panel==='matches') Matches.load();
@@ -1019,7 +1075,7 @@ const Auth = {
         Store.set('user', res.user);
         Toast.show(`Welcome back, ${res.user.name}!`,'success');
         App.navigate('dashboard');
-        Dashboard.load();
+        AppNav.go('dashboard');
       } else {
         Toast.show(res.message||'Invalid credentials','error');
       }
@@ -1037,14 +1093,15 @@ const Auth = {
       const res = await API.post('/api/auth/signup',{
         name: document.getElementById('signup-name').value,
         email: document.getElementById('signup-email').value,
-        password: document.getElementById('signup-password').value
+        password: document.getElementById('signup-password').value,
+        role: document.getElementById('signup-role').value
       });
       if(res.success){
         Store.set('token', res.token);
         Store.set('user', res.user);
         Toast.show(`Account created! Welcome, ${res.user.name} 🎉`,'success');
         App.navigate('dashboard');
-        Dashboard.load();
+        AppNav.go('dashboard');
       } else {
         Toast.show(res.message||'Signup failed','error');
       }
@@ -1068,10 +1125,55 @@ const Dashboard = {
   async load(){
     const user = Store.get('user');
     if(!user) return;
+    const isRecruiter = user.role === 'recruiter';
+    
     document.getElementById('dash-username').textContent = user.name?.split(' ')[0]||'there';
     document.getElementById('stat-skills').textContent = (user.skills||[]).length;
     document.getElementById('stat-saved').textContent = (user.savedJobs||[]).length;
+    
+    // RBAC for Quick Actions
+    document.getElementById('dash-quick-actions').innerHTML = isRecruiter 
+      ? `<button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('jobs');Jobs.openAddModal()">
+          <span style="font-size:24px">➕</span>
+          <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">Post a Job</div><div style="font-size:12px;color:var(--text2)">Hire top talent based on AI matching</div></div>
+         </button>
+         <button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('jobs')">
+           <span style="font-size:24px">💼</span>
+           <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">Browse Jobs</div><div style="font-size:12px;color:var(--text2)">Explore all opportunities</div></div>
+         </button>
+         <button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('profile')">
+           <span style="font-size:24px">👤</span>
+           <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">View Profile</div><div style="font-size:12px;color:var(--text2)">Account settings</div></div>
+         </button>`
+      : `<button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('resume')">
+          <span style="font-size:24px">📄</span>
+          <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">Upload Resume</div><div style="font-size:12px;color:var(--text2)">Get AI skill extraction</div></div>
+        </button>
+        <button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('matches')">
+          <span style="font-size:24px">🎯</span>
+          <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">Run Auto-Match</div><div style="font-size:12px;color:var(--text2)">Match resume to all jobs</div></div>
+        </button>
+        <button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('jobs')">
+          <span style="font-size:24px">💼</span>
+          <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">Browse Jobs</div><div style="font-size:12px;color:var(--text2)">Explore all opportunities</div></div>
+        </button>
+        <button class="card card-sm" style="text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px;border:1px solid var(--border)" onclick="AppNav.go('profile')">
+          <span style="font-size:24px">👤</span>
+          <div><div style="font-weight:600;font-size:14px;margin-bottom:2px">View Profile</div><div style="font-size:12px;color:var(--text2)">Skills & education</div></div>
+        </button>`;
+
     // Load matches for stats
+    if(isRecruiter) {
+        document.getElementById('stat-matches').textContent = '—';
+        document.getElementById('stat-topscore').textContent = '—';
+        document.getElementById('dash-matches-list').innerHTML = `
+          <div class="empty-state" style="padding:32px">
+            <div class="empty-icon">💼</div>
+            <div class="empty-title">Recruiter Dashboard</div>
+            <div class="empty-sub">Your matches are generated when applicants apply to your jobs.</div>
+          </div>`;
+        return;
+    }
     try {
       const res = await API.get(`/api/match/auto/${user._id}`);
       if(res.success && res.data?.length){
@@ -1240,7 +1342,7 @@ const Jobs = {
       </div>
       <div class="job-card-footer">
         <span style="font-size:13px;color:var(--text2)">Min. ${j.minExperience||0} yrs experience</span>
-        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();Jobs.quickMatch('${j._id}')">⚡ Quick match</button>
+        ${user?.role === 'recruiter' ? '' : `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();Jobs.quickMatch('${j._id}')">⚡ Quick match</button>`}
       </div>
     </div>`;
   },
@@ -1259,7 +1361,18 @@ const Jobs = {
         user.savedJobs = res.savedJobs||[];
         Store.set('user',user);
         Toast.show(saved?'Job removed from saved':'Job saved! 🔖', saved?'info':'success');
-        Jobs.render(this._all); // re-render to update buttons
+        if (saved) {
+           btn.innerHTML = '+ Save';
+           btn.classList.remove('btn-primary');
+           btn.classList.add('btn-secondary');
+        } else {
+           btn.innerHTML = '🔖 Saved';
+           btn.classList.remove('btn-secondary');
+           btn.classList.add('btn-primary');
+        }
+        if (saved && document.getElementById('panel-saved').classList.contains('active')) {
+           SavedJobs.load();
+        }
       }
     } catch { Toast.show('Failed to update saved jobs','error'); }
   },
@@ -1272,6 +1385,8 @@ const Jobs = {
       if(res.success){
         const d = res.data;
         Toast.show(`Match score: ${d.matchPercentage}% — ${d.matchedSkills?.length||0} skills matched`,'success',4000);
+      } else {
+        Toast.show(res.message||'Match failed','error');
       }
     } catch { Toast.show('Match failed','error'); }
   },
@@ -1294,8 +1409,8 @@ const Jobs = {
           ${(job.requiredSkills||[]).map(s=>`<span class="badge badge-lime">${s}</span>`).join('')}
         </div>
         <div style="display:flex;gap:12px">
-          <button class="btn btn-primary" onclick="Jobs.quickMatch('${jobId}');Jobs.closeModal()">⚡ Get Match Score</button>
-          <button class="btn ${saved?'btn-secondary':'btn-secondary'}" onclick="Jobs.toggleSave('${jobId}',this);Jobs.closeModal()">
+          ${user?.role === 'recruiter' ? '' : `<button class="btn btn-primary" onclick="Jobs.quickMatch('${jobId}');Jobs.closeModal()">⚡ Get Match Score</button>`}
+          <button class="btn btn-secondary" onclick="Jobs.toggleSave('${jobId}',this);Jobs.closeModal()">
             ${saved?'🔖 Saved':'+ Save Job'}
           </button>
         </div>
@@ -1305,6 +1420,37 @@ const Jobs = {
   closeModal(e){
     if(!e || e.target===document.getElementById('job-modal'))
       document.getElementById('job-modal').classList.add('hidden');
+  },
+  openAddModal(){
+    document.getElementById('add-job-modal').classList.remove('hidden');
+  },
+  closeAddModal(e){
+    if(!e || e.target===document.getElementById('add-job-modal'))
+      document.getElementById('add-job-modal').classList.add('hidden');
+  },
+  async submitJob(e){
+    e.preventDefault();
+    const btn = document.getElementById('add-job-btn');
+    btn.disabled = true; btn.textContent = 'Posting...';
+    try {
+      const req = {
+        title: document.getElementById('add-job-title').value,
+        company: document.getElementById('add-job-company').value,
+        requiredSkills: document.getElementById('add-job-skills').value.split(',').map(s=>s.trim()).filter(s=>s),
+        minExperience: parseInt(document.getElementById('add-job-exp').value)||0,
+        description: document.getElementById('add-job-desc').value
+      };
+      const res = await API.post('/api/jobs', req);
+      if(res.success){
+        Toast.show('Job posted successfully!', 'success');
+        Jobs.closeAddModal();
+        Jobs.load();
+        e.target.reset();
+      } else {
+        Toast.show(res.message||'Failed to post job', 'error');
+      }
+    } catch { Toast.show('Error posting job', 'error'); }
+    btn.disabled = false; btn.textContent = 'Post Job';
   }
 };
 
@@ -1357,6 +1503,8 @@ const Matches = {
     const pct = m.matchDetails?.matchPercentage||0;
     const color = pct>=80?'var(--success)':pct>=60?'var(--warn)':'var(--error)';
     const r=22,circ=2*Math.PI*r,offset=circ-((pct/100)*circ);
+    const user = Store.get('user');
+    const saved = (user?.savedJobs||[]).includes(m.job?._id);
     return `<div class="match-card">
       <svg width="66" height="66" style="flex-shrink:0;transform:rotate(-90deg)">
         <circle cx="33" cy="33" r="${r}" stroke="var(--dark4)" stroke-width="4" fill="none"/>
@@ -1381,7 +1529,7 @@ const Matches = {
           </span>
         </div>
       </div>
-      <button class="btn btn-secondary btn-sm" style="flex-shrink:0;align-self:flex-start" onclick="Jobs.toggleSave('${m.job?._id}',this)">+ Save</button>
+      <button class="btn ${saved?'btn-primary':'btn-secondary'} btn-sm" style="flex-shrink:0;align-self:flex-start" onclick="Jobs.toggleSave('${m.job?._id}',this)">${saved?'🔖 Saved':'+ Save'}</button>
     </div>`;
   }
 };
