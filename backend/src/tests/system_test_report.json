@@ -1,0 +1,59 @@
+{
+  "auth": {
+    "signupApplicant": "PASS",
+    "signupRecruiter": "PASS",
+    "invalidSignupRejections": "PASS",
+    "loginCorrect": "PASS",
+    "loginWrongPassword": "PASS",
+    "loginNonExisting": "PASS"
+  },
+  "resumeUpload": {
+    "pdfValid": "PASS",
+    "docxValid": "PASS",
+    "unsupportedType": "PASS",
+    "emptyResume": "PASS",
+    "largeResume": "PASS"
+  },
+  "skillExtraction": {
+    "accuracy": "PASS"
+  },
+  "database": {
+    "documentCreation": "PASS",
+    "gracefulDelete": "PASS"
+  },
+  "jobAPI": {
+    "createValid": "PASS",
+    "missingTitle": "PASS",
+    "missingSkills": "PASS",
+    "getJobsCount": "PASS"
+  },
+  "matchingEngine": {
+    "exact": "PASS",
+    "partial": "PASS",
+    "semantic": "PASS",
+    "noMatch": "PASS",
+    "fallback": "PASS"
+  },
+  "autoMatchAPI": {
+    "userWithResume": "PASS",
+    "userWithoutResume": "PASS"
+  },
+  "savedJobs": {
+    "saveFirstTime": "PASS",
+    "saveDuplicate": "PASS",
+    "removeJob": "PASS"
+  },
+  "security": {
+    "plaintextPasswords": "PASS",
+    "unauthorizedProfileAccess": "PASS",
+    "maliciousUpload": "PASS (Safely rejected)"
+  },
+  "performance": {
+    "durationMs": 470,
+    "memoryMB": 0,
+    "status": "PASS"
+  },
+  "e2e": {
+    "flowStatus": "PASS"
+  }
+}

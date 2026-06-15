@@ -1,4 +1,5 @@
 const { db } = require('../config/firebase');
+const bcrypt = require('bcryptjs');
 
 const COLLECTION = 'users';
 
@@ -25,13 +26,20 @@ const User = {
     },
 
     /**
-     * Creates a new user
+     * Creates a new user with automatic password hashing
      * @param {object} userData 
      */
     async create(userData) {
+        let password = userData.password;
+        if (password && !(password.startsWith('$2a$') || password.startsWith('$2b$'))) {
+            const salt = await bcrypt.genSalt(10);
+            password = await bcrypt.hash(password, salt);
+        }
+
         const userToCreate = {
             ...userData,
             email: userData.email.toLowerCase(),
+            password: password,
             role: userData.role || 'applicant',
             savedJobs: userData.savedJobs || [],
             skills: userData.skills || [],
@@ -45,7 +53,7 @@ const User = {
     },
 
     /**
-     * Updates a user by ID
+     * Updates a user by ID with automatic password hashing if updated
      * @param {string} id 
      * @param {object} updateData 
      */
@@ -55,6 +63,12 @@ const User = {
             ...updateData,
             updatedAt: new Date()
         };
+
+        if (updateData.password && !(updateData.password.startsWith('$2a$') || updateData.password.startsWith('$2b$'))) {
+            const salt = await bcrypt.genSalt(10);
+            dataToUpdate.password = await bcrypt.hash(updateData.password, salt);
+        }
+
         await docRef.update(dataToUpdate);
         const updatedDoc = await docRef.get();
         return { _id: updatedDoc.id, ...updatedDoc.data() };
