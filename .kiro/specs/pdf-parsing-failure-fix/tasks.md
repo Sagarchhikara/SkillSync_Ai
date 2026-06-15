@@ -15,7 +15,7 @@
   - Mark task complete when test is written, run, and failure is documented
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [~] 2. Write preservation property tests (BEFORE implementing fix)
+- [ ] 2. Write preservation property tests (BEFORE implementing fix)
   - **Property 2: Preservation** - Simple PDF and DOCX Parsing
   - **IMPORTANT**: Follow observation-first methodology
   - Observe behavior on UNFIXED code for non-buggy inputs (simple text PDFs, DOCX files)
@@ -31,9 +31,9 @@
   - Mark task complete when tests are written, run, and passing on unfixed code
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [~] 3. Fix for PDF parsing failure with embedded images or complex formatting
+- [ ] 3. Fix for PDF parsing failure with embedded images or complex formatting
 
-  - [~] 3.1 Add canvas dependency to package.json
+  - [ ] 3.1 Add canvas dependency to package.json
     - Add "canvas": "^2.11.2" to the dependencies section
     - Verify compatibility with pdf-parse v2.4.5 (canvas v2.x is compatible)
     - Run npm install to install the canvas dependency
@@ -42,7 +42,7 @@
     - _Preservation: Simple text-based PDFs, DOCX parsing, error handling for unsupported file types, file existence validation, and error messages for PDFs with no readable text must remain unchanged_
     - _Requirements: 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [~] 3.2 Import and configure canvas in fileParserService.js
+  - [ ] 3.2 Import and configure canvas in fileParserService.js
     - Add canvas import at the top of the file: const canvas = require('canvas');
     - This makes the dependency explicit and allows early failure if canvas is not installed
     - Modify the pdfParse call in parsePdf function to include canvas in options: await pdfParse(dataBuffer, { canvas })
@@ -52,7 +52,7 @@
     - _Preservation: Simple text-based PDFs, DOCX parsing, error handling for unsupported file types, file existence validation, and error messages for PDFs with no readable text must remain unchanged_
     - _Requirements: 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [~] 3.3 Add enhanced error handling for canvas-related failures
+  - [ ] 3.3 Add enhanced error handling for canvas-related failures
     - Wrap pdfParse call in try-catch to catch canvas-specific errors
     - Provide clearer error messages for canvas-related failures
     - Help users understand if the issue is canvas-related vs PDF corruption
@@ -62,7 +62,7 @@
     - _Preservation: Simple text-based PDFs, DOCX parsing, error handling for unsupported file types, file existence validation, and error messages for PDFs with no readable text must remain unchanged_
     - _Requirements: 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [~] 3.4 Verify bug condition exploration test now passes
+  - [ ] 3.4 Verify bug condition exploration test now passes
     - **Property 1: Expected Behavior** - Complex PDF Parsing Success
     - **IMPORTANT**: Re-run the SAME test from task 1 - do NOT write a new test
     - The test from task 1 encodes the expected behavior
@@ -74,7 +74,7 @@
     - **EXPECTED OUTCOME**: Test PASSES (confirms bug is fixed)
     - _Requirements: 2.1, 2.2, 2.3_
 
-  - [~] 3.5 Verify preservation tests still pass
+  - [ ] 3.5 Verify preservation tests still pass
     - **Property 2: Preservation** - Simple PDF and DOCX Parsing
     - **IMPORTANT**: Re-run the SAME tests from task 2 - do NOT write new tests
     - Run preservation property tests from step 2
@@ -86,5 +86,5 @@
     - **EXPECTED OUTCOME**: Tests PASS (confirms no regressions)
     - Confirm all tests still pass after fix (no regressions)
 
-- [~] 4. Checkpoint - Ensure all tests pass
+- [ ] 4. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.

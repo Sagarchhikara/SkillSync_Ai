@@ -6,7 +6,7 @@ const User = require('../models/User');
  */
 const signup = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
 
         if (!name || !email || !password) {
             return res.status(400).json({ success: false, message: 'Please provide all required fields' });
@@ -20,7 +20,8 @@ const signup = async (req, res) => {
         const newUser = await User.create({
             name,
             email,
-            password // In a production app, we would hash this password first!
+            password, // In a production app, we would hash this password first!
+            role
         });
 
         res.status(201).json({
@@ -30,6 +31,7 @@ const signup = async (req, res) => {
                 _id: newUser._id,
                 name: newUser.name,
                 email: newUser.email,
+                role: newUser.role,
                 savedJobs: newUser.savedJobs,
                 skills: newUser.skills,
                 education: newUser.education
@@ -64,6 +66,7 @@ const login = async (req, res) => {
                     _id: user._id,
                     name: user.name,
                     email: user.email,
+                    role: user.role,
                     savedJobs: user.savedJobs,
                     skills: user.skills,
                     education: user.education

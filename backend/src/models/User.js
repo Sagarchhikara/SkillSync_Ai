@@ -32,6 +32,7 @@ const User = {
         const userToCreate = {
             ...userData,
             email: userData.email.toLowerCase(),
+            role: userData.role || 'applicant',
             savedJobs: userData.savedJobs || [],
             skills: userData.skills || [],
             education: userData.education || [],
